@@ -30,7 +30,7 @@ services:
   mariadb:
     image: mariadb:11.1-jammy
     restart: always
-    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=America/Los_Angeles
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=America/New_York
     volumes:
       - db:/var/lib/mysql:Z
     environment:
@@ -38,6 +38,7 @@ services:
       - MYSQL_DATABASE=zm
       - MYSQL_USER=zmuser
       - MARIADB_ROOT_PASSWORD=w8t67u23789t
+      - TZ=America/New_York
   zm:
     image: jantman/docker-zoneminder:devel
     restart: always
@@ -57,3 +58,6 @@ services:
       - ./data/secrets.ini:/etc/zm/secrets.ini:Z
       - ./data/zmeventnotification.ini:/etc/zm/zmeventnotification.ini:Z
       - ./data/objectconfig.ini:/etc/zm/objectconfig.ini:Z
+    environment:
+      - TZ=America/New_York
+
