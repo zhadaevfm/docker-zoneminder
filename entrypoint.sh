@@ -28,7 +28,7 @@ chmod -R 770 /etc/zm /var/log/zm
 [[ -e /run/zm ]] || install -m 0750 -o www-data -g www-data -d /run/zm
 
 echo "Setting PHP timezone"
-sed -i "s|;date\.timezone =.*|date.timezone = ${TZ}|" /etc/php/8.2/apache2/php.ini
+sed -i "s|;date\.timezone =.*|date.timezone = ${TZ}|" /etc/php/7.4/apache2/php.ini
 
 echo "Setting up directories in /run tmpfs"
 install -m 0755 -o root -g root -d /run/apache2

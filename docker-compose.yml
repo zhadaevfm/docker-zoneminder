@@ -6,25 +6,25 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: /zoneminder/zmcache
+      device: /mnt/data/ZM_DATA/zmcache
   zmlog:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /zoneminder/zmlog
+      device: /mnt/data/ZM_DATA/zmlog
   zmapachelog:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /zoneminder/zmapachelog
+      device: /mnt/data/ZM_DATA/zmapachelog
   db:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /zoneminder/db
+      device: /mnt/data/ZM_DATA/db
 
 services:
   mariadb:
@@ -39,14 +39,23 @@ services:
       - MYSQL_USER=zmuser
       - MARIADB_ROOT_PASSWORD=w8t67u23789t
       - TZ=Europe/Saratov
+#
+    ports:
+      - 3306:3306
+#
   zm:
-    image: jantman/docker-zoneminder:devel
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: zhadaevfm/docker-zoneminder
     restart: always
     shm_size: 1G
-    ports:
-      - 8080:80
-    links:
-      - mariadb
+#    ports:
+#      - 8080:80
+#    links:
+#      - mariadb
+    network_mode: "host"
+#
     tmpfs:
       - /run
       - /tmp
@@ -59,5 +68,8 @@ services:
       - ./data/zmeventnotification.ini:/etc/zm/zmeventnotification.ini:Z
       - ./data/objectconfig.ini:/etc/zm/objectconfig.ini:Z
     environment:
+      - ZM_DB_PASS=zmpass
+      - ZM_DB_NAME=zm
+      - ZM_DB_USER=zmuser
+      - ZM_DB_HOST=127.0.0.1
       - TZ=Europe/Saratov
-
