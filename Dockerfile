@@ -6,7 +6,7 @@ ENV ZM_DB_NAME=zm
 ENV ZM_DB_USER=zmuser
 ENV ZM_DB_PASS=zmpass
 # this is just a default
-ENV TZ=America/Los_Angeles
+ENV TZ=Europe/Saratov
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update \

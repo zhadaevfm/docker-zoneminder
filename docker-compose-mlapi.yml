@@ -8,7 +8,7 @@ services:
   mariadb:
     image: mariadb:11.1-jammy
     restart: always
-    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=America/New_York
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=Europe/Saratov
     volumes:
       - ./db:/var/lib/mysql
     environment:
