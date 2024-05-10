@@ -40,8 +40,8 @@ services:
       - MARIADB_ROOT_PASSWORD=w8t67u23789t
       - TZ=Europe/Saratov
 #
-    ports:
-      - 3306:3306
+#    ports:
+#      - 3306:3306
 #
   zm:
     build:
@@ -50,11 +50,12 @@ services:
     image: zhadaevfm/docker-zoneminder
     restart: always
     shm_size: 1G
-#    ports:
-#      - 8080:80
-#    links:
-#      - mariadb
-    network_mode: "host"
+#
+    ports:
+      - 8081:80
+    links:
+      - mariadb
+#    network_mode: "host"
 #
     tmpfs:
       - /run
@@ -71,5 +72,5 @@ services:
       - ZM_DB_PASS=zmpass
       - ZM_DB_NAME=zm
       - ZM_DB_USER=zmuser
-      - ZM_DB_HOST=127.0.0.1
+#      - ZM_DB_HOST=127.0.0.1
       - TZ=Europe/Saratov
