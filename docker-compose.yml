@@ -1,8 +1,30 @@
 version: '2'
 
 volumes:
-  data:
+  zmcache:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /zoneminder/zmcache
+  zmlog:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /zoneminder/zmlog
+  zmapachelog:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /zoneminder/zmapachelog
   db:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /zoneminder/db
 
 services:
   mariadb:
@@ -10,12 +32,13 @@ services:
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=America/New_York
     volumes:
-      - ./db:/var/lib/mysql
+      - db:/var/lib/mysql:Z
     environment:
       - MYSQL_PASSWORD=zmpass
       - MYSQL_DATABASE=zm
       - MYSQL_USER=zmuser
       - MARIADB_ROOT_PASSWORD=w8t67u23789t
+      - TZ=America/New_York
   zm:
     image: jantman/docker-zoneminder:devel
     restart: always
@@ -28,10 +51,13 @@ services:
       - /run
       - /tmp
     volumes:
-      - ./cache:/var/cache/zoneminder
-      - ./zm-log:/var/log/zm
-      - ./apache2-log:/var/log/apache2
-      - ./es_rules.json:/etc/zm/es_rules.json
-      - ./secrets.ini:/etc/zm/secrets.ini
-      - ./zmeventnotification.ini:/etc/zm/zmeventnotification.ini
-      - ./objectconfig.ini:/etc/zm/objectconfig.ini
+      - zmcache:/var/cache/zoneminder:Z
+      - zmlog:/var/log/zm:Z
+      - zmapachelog:/var/log/apache2:Z
+      - ./data/es_rules.json:/etc/zm/es_rules.json:Z
+      - ./data/secrets.ini:/etc/zm/secrets.ini:Z
+      - ./data/zmeventnotification.ini:/etc/zm/zmeventnotification.ini:Z
+      - ./data/objectconfig.ini:/etc/zm/objectconfig.ini:Z
+    environment:
+      - TZ=America/New_York
+
