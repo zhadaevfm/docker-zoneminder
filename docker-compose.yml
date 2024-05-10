@@ -28,7 +28,7 @@ services:
   mariadb:
     image: mariadb:11.8
     restart: always
-    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=America/New_York
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=Europe/Saratov
     volumes:
       - db:/var/lib/mysql:Z
     environment:
@@ -36,7 +36,7 @@ services:
       - MYSQL_DATABASE=zm
       - MYSQL_USER=zmuser
       - MARIADB_ROOT_PASSWORD=w8t67u23789t
-      - TZ=America/New_York
+      - TZ=Europe/Saratov
   zm:
     image: ghcr.io/jantman/docker-zoneminder:latest
     restart: always
@@ -60,5 +60,5 @@ services:
       - ./data/zmeventnotification.ini:/etc/zm/zmeventnotification.ini:Z
       - ./data/objectconfig.ini:/etc/zm/objectconfig.ini:Z
     environment:
-      - TZ=America/New_York
+      - TZ=Europe/Saratov
 
