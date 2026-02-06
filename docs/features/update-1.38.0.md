@@ -38,8 +38,12 @@ Our acceptance criteria are:
 ### Known Risks
 
 - **MQTT segfault on Trixie**: Forum reports of ZM 1.38 crashing with MQTT enabled on Trixie. Build with MQTT support but note this risk.
-- **ZMES + ZM 1.38**: The monitor Function redesign may break ZMES hooks. Will test and fix.
+  - https://forums.zoneminder.com/viewtopic.php?p=139150
+- **ZMES + ZM 1.38**: The monitor Function redesign (single `Function` field split into `Capturing`/`Analysing`/`Recording`) may break ZMES hooks. ZMES last release (v6.1.29, Oct 2023) predates 1.38.0 by over a year. Will test and fix.
+  - ZM 1.38 release notes: https://github.com/ZoneMinder/zoneminder/releases/tag/1.38.0
+  - ZMES latest release: https://github.com/ZoneMinder/zmeventnotification/releases/tag/v6.1.29
 - **Database upgrade**: 79 schema migrations; `zmupdate.pl -f` should handle this but may hit the "Incorrect datetime" bug (workaround: TRUNCATE Monitor_Status).
+  - https://forums.zoneminder.com/viewtopic.php?t=34263
 
 ## Implementation Plan
 
