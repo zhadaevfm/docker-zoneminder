@@ -139,6 +139,11 @@ Rewrite the Dockerfile as a multi-stage build: a builder stage that compiles ZM 
   - go2rtc runs as s6 service with config at /etc/zm/go2rtc.yaml
   - entrypoint.sh updated for PHP 8.4 path
   - Docker image builds successfully
-- [ ] Milestone 2: Docker Compose and Config Updates
+- [x] Milestone 2: Docker Compose and Config Updates
+  - MariaDB 11.1-jammy (EOL) → 11.8 (LTS) in both compose files
+  - Removed deprecated `version: '2'` key
+  - Replaced `links` with `depends_on` in docker-compose.yml
+  - Added go2rtc port mappings (1984, 8555) to both compose files
+  - Example config files unchanged (ZMES-specific, not ZM-version-dependent)
 - [ ] Milestone 3: CI/CD Updates
 - [ ] Milestone 4: Acceptance Criteria
