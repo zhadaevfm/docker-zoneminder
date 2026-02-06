@@ -133,7 +133,12 @@ Rewrite the Dockerfile as a multi-stage build: a builder stage that compiles ZM 
 
 ## Progress
 
-- [ ] Milestone 1: Multi-stage Dockerfile for ZM 1.38.0 on Trixie
+- [x] Milestone 1: Multi-stage Dockerfile for ZM 1.38.0 on Trixie
+  - Builder stage compiles ZM 1.38.0 from source with cmake on debian:13.3
+  - Runtime stage includes Apache + PHP 8.4, all Perl/Python runtime deps, ZMES, go2rtc v1.9.14
+  - go2rtc runs as s6 service with config at /etc/zm/go2rtc.yaml
+  - entrypoint.sh updated for PHP 8.4 path
+  - Docker image builds successfully
 - [ ] Milestone 2: Docker Compose and Config Updates
 - [ ] Milestone 3: CI/CD Updates
 - [ ] Milestone 4: Acceptance Criteria
