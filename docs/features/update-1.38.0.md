@@ -23,6 +23,7 @@ Our acceptance criteria are:
 | ZM installation | Build from source (git tag 1.38.0) | No prebuilt packages exist for any Debian version yet |
 | MariaDB | `mariadb:11.8` (LTS) | Current 11.1 is EOL; 11.8 LTS supported until June 2028 |
 | ZMES | Keep, fix issues as found | Last release v6.1.29 (Oct 2023); ZM 1.38 compat unverified |
+| go2rtc | Include (v1.9.14) | Single binary; provides WebRTC/MSE/HLS streaming for ZM 1.38 |
 | PHP version | 8.4 (Trixie default) | Path changes: `/etc/php/8.4/apache2/php.ini` |
 
 ### ZM 1.38.0 Major Changes from 1.36
@@ -32,7 +33,7 @@ Our acceptance criteria are:
 - **New features**: WebRTC (go2rtc), ONVIF events, MQTT, event tagging, server monitoring
 - **79 database schema migrations** from 1.36 to 1.38
 - **New optional deps**: mosquitto (MQTT), gSOAP (ONVIF), nlohmann_json, libunwind
-- **go2rtc** is optional and external (not compiled in); skip for now
+- **go2rtc** is optional and external (not compiled in); will be included as a bundled binary
 
 ### Known Risks
 
@@ -70,12 +71,20 @@ Rewrite the Dockerfile as a multi-stage build: a builder stage that compiles ZM 
 - Install ZMES Python dependencies (pyzm, hook helpers via pip)
 - Copy ZMES files to their runtime locations
 
-**Task 1.5: Update entrypoint.sh**
+**Task 1.5: go2rtc integration**
+- Download go2rtc v1.9.14 linux/amd64 binary to `/usr/local/bin/go2rtc`
+- Create `content/go2rtc-run` s6 service script (exec go2rtc with `-c /etc/zm/go2rtc.yaml`)
+- Create `content/go2rtc.yaml` minimal config (API on `:1984`, RTSP on `:8554`, WebRTC on `:8555`)
+- Install s6 service and config in Dockerfile
+- Expose ports 1984 (API/WebSocket) and 8555 (WebRTC) in Dockerfile
+- Note: `ZM_GO2RTC_PATH` must be set by the user in ZM Options → System to the externally-reachable URL (e.g. `http://<docker-host>:1984`), since browsers need to connect to it too
+
+**Task 1.6: Update entrypoint.sh**
 - Change PHP ini path from `/etc/php/8.2/apache2/php.ini` to `/etc/php/8.4/apache2/php.ini`
 - Verify all other paths still work with source-built ZM (zm.conf location, zm_create.sql, triggers.sql, zmupdate.pl)
 - Add note about Monitor_Status truncation workaround for upgrades from 1.36
 
-**Task 1.6: Build and verify**
+**Task 1.7: Build and verify**
 - `docker build -t docker-zoneminder:dev .` must succeed
 - Commit all Milestone 1 changes
 
@@ -85,6 +94,7 @@ Rewrite the Dockerfile as a multi-stage build: a builder stage that compiles ZM 
 - MariaDB image: `mariadb:11.1-jammy` → `mariadb:11.8`
 - Remove deprecated `version: '2'` key
 - Use `depends_on` instead of `links` for zm→mariadb relationship
+- Add port mappings for go2rtc: `1984:1984` (API/WebSocket) and `8555:8555` (WebRTC)
 
 **Task 2.2: Update docker-compose-mlapi.yml**
 - Same MariaDB and compose format changes as Task 2.1
