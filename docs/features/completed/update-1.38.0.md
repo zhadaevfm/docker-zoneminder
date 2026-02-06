@@ -149,4 +149,8 @@ Rewrite the Dockerfile as a multi-stage build: a builder stage that compiles ZM 
   - actions/checkout v3→v4, docker/setup-buildx-action v2→v3
   - docker/login-action v2→v3, docker/build-push-action v4→v6
   - Replaced deprecated actions/create-release@v1 with softprops/action-gh-release@v2
-- [ ] Milestone 4: Acceptance Criteria
+- [x] Milestone 4: Acceptance Criteria
+  - README.md updated with ZM 1.38, Debian 13, MariaDB 11.8, go2rtc info
+  - CLAUDE.md updated with multi-stage build, go2rtc service, new ports/paths
+  - Docker image builds successfully
+  - Feature doc moved to completed/

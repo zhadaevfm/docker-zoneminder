@@ -6,11 +6,13 @@ Modern, best-practices Debian-based Zoneminder container
 
 **IMPORTANT:** This is a personal project only. PRs are accepted, but this is not supported and "issues" will likely not be fixed or responded to. This is only for people who understand the details of everything invovled, sorry.
 
-This repo attempts to provide a modern, best-practices Docker image for current ZoneMinder versions, using a current Debian version base. The image provides ZoneMinder and Apache but (like a proper Docker image) requires an external MySQL server. The image is vehemently NOT auto-updating, as doing so in a Docker image is a mortal sin. If you want to update, then pull a newer tag.
+This repo attempts to provide a modern, best-practices Docker image for current ZoneMinder versions, using a current Debian version base. The image provides ZoneMinder 1.38.0 (compiled from source) on Debian 13 (Trixie) with Apache + PHP 8.4, and includes [go2rtc](https://github.com/AlexxIT/go2rtc) for WebRTC/MSE/HLS live streaming. It requires an external MySQL/MariaDB server (the example docker-compose files use MariaDB 11.8 LTS). The image is vehemently NOT auto-updating, as doing so in a Docker image is a mortal sin. If you want to update, then pull a newer tag.
 
 **NOTE:** If you want to use the event server, then you'll need to mount the appropriate configuration files in to the image at ``/etc/zm/es_rules.json``, ``/etc/zm/zmeventnotification.ini``, and ``/etc/zm/secrets.ini``; examples are included in this repo.
 
 In addition, the output of `mod_status` is exposed at `/server-status`.
+
+**go2rtc:** The image includes go2rtc for modern WebRTC streaming. To use it, set `ZM_GO2RTC_PATH` in ZoneMinder Options → System to the externally-reachable URL of the go2rtc API (e.g., `http://<your-docker-host>:1984`). Then enable "Go2RTC Live Stream" on individual monitors. Ports 1984 (API/WebSocket) and 8555 (WebRTC) are exposed.
 
 ## Usage
 

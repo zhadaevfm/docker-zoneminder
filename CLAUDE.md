@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Docker image for ZoneMinder (video surveillance) on Debian 12, using Apache + PHP. Requires an external MySQL/MariaDB database (not bundled). Includes the ZM Event Notification Server (ZMES) for event-driven object detection via WebSocket on port 9000. This is a personal WIP project (MIT license).
+Docker image for ZoneMinder 1.38.0 (video surveillance) on Debian 13 (Trixie), using Apache + PHP 8.4. ZoneMinder is compiled from source in a multi-stage Docker build. Requires an external MySQL/MariaDB database (not bundled). Includes the ZM Event Notification Server (ZMES) for event-driven object detection via WebSocket on port 9000, and go2rtc for WebRTC/MSE/HLS live streaming. This is a personal WIP project (MIT license).
 
 ## Build and Test
 
@@ -37,12 +37,14 @@ There is no automated test suite. Verification is manual: build the image and ru
 
 ### Container Internals
 
-- **Base:** Debian 12.2 with ZoneMinder installed from Debian packages
+- **Base:** Debian 13.3 (Trixie) with ZoneMinder 1.38.0 compiled from source
+- **Build:** Multi-stage Dockerfile — builder stage compiles ZM with cmake, runtime stage contains only what's needed to run
 - **Process supervision:** s6 (`s6-svscan`) manages multiple services:
   - `/etc/services.d/apache2/run` - Apache web server
   - `/etc/services.d/zoneminder/run` and `finish` - ZoneMinder daemon
+  - `/etc/services.d/go2rtc/run` - go2rtc streaming server
 - **Entrypoint** (`entrypoint.sh`): Injects `ZM_DB_*` env vars into `/etc/zm/zm.conf`, waits for MariaDB, initializes the database schema on first run, then starts s6
-- **Ports:** 80 (Apache/HTTP), 9000 (ZMES WebSocket)
+- **Ports:** 80 (Apache/HTTP), 9000 (ZMES WebSocket), 1984 (go2rtc API/WebSocket), 8555 (go2rtc WebRTC)
 - **Volumes:** `/var/cache/zoneminder` (events/images), `/var/log/zm` (logs)
 
 ### Key Environment Variables
@@ -57,13 +59,15 @@ There is no automated test suite. Verification is manual: build the image and ru
 
 ### File Layout
 
-- `Dockerfile` - Image build definition
+- `Dockerfile` - Multi-stage image build (builder + runtime)
 - `entrypoint.sh` - Container startup script
-- `content/` - Files copied into the image during build (Apache config, s6 service scripts, ZMES)
+- `content/` - Files copied into the image during build (Apache config, s6 service scripts, ZMES, go2rtc)
   - `content/zmeventnotification/` - ZMES submodule (event server, hooks, object detection)
   - `content/zm-site.conf` - Apache VirtualHost config
   - `content/zmcustom.conf` - ZoneMinder custom config
   - `content/status.conf` - Apache mod_status config
+  - `content/go2rtc-run` - s6 service script for go2rtc
+  - `content/go2rtc.yaml` - go2rtc configuration (API on :1984, WebRTC on :8555)
 - `docker-compose.yml` - Basic demo (ZM + MariaDB)
 - `docker-compose-mlapi.yml` - Extended demo with ML API service
 
