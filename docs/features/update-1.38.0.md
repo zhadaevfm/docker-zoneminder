@@ -145,5 +145,8 @@ Rewrite the Dockerfile as a multi-stage build: a builder stage that compiles ZM 
   - Replaced `links` with `depends_on` in docker-compose.yml
   - Added go2rtc port mappings (1984, 8555) to both compose files
   - Example config files unchanged (ZMES-specific, not ZM-version-dependent)
-- [ ] Milestone 3: CI/CD Updates
+- [x] Milestone 3: CI/CD Updates
+  - actions/checkout v3→v4, docker/setup-buildx-action v2→v3
+  - docker/login-action v2→v3, docker/build-push-action v4→v6
+  - Replaced deprecated actions/create-release@v1 with softprops/action-gh-release@v2
 - [ ] Milestone 4: Acceptance Criteria
