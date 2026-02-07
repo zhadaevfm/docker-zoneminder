@@ -1,12 +1,10 @@
-version: '2'
-
 volumes:
   data:
   db:
 
 services:
   mariadb:
-    image: mariadb:11.1-jammy
+    image: mariadb:11.8
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=America/New_York
     volumes:
@@ -22,7 +20,10 @@ services:
     shm_size: 1G
     ports:
       - 8080:80
-    links:
+      - 9000:9000
+      - 1984:1984
+      - 8555:8555
+    depends_on:
       - mariadb
     tmpfs:
       - /run
