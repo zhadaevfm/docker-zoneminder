@@ -21,11 +21,8 @@ mysql_ready() {
     mariadb-admin ping --host=$ZM_DB_HOST --user=$ZM_DB_USER --password=$ZM_DB_PASS > /dev/null 2>&1
 }
 
-# Ensure cache subdirectories exist and have correct ownership (bind mounts may have host UIDs)
-echo "Ensuring /var/cache/zoneminder subdirectories exist with correct permissions"
+# Ensure cache subdirectories exist (but do NOT recursive chown/chmod — too slow on large volumes)
 mkdir -p /var/cache/zoneminder/{events,images,temp,cache}
-chown -R www-data:www-data /var/cache/zoneminder
-chmod -R 775 /var/cache/zoneminder
 
 echo "chown and chmod /etc/zm and /var/log/zm"
 chown -R root:www-data /etc/zm

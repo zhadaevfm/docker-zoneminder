@@ -21,6 +21,7 @@ In addition, the output of `mod_status` is exposed at `/server-status`.
 1. This is really only a very simple **demo / example** to show this image working and show what it can do; this method of running is completely unsuitable for real, long-term usage. To use this for real you'll want to set these Docker containers up so they start automatically (i.e. via systemd units), store data in an appropriate place (currently they store data in the directory they're run from), and are properly monitored and backed up (especially backups of the database).
 2. I've only tested the following on Linux. It should probably work on Mac. I'm not sure about Windows, I haven't used it since 2006.
 3. This image requires a separate, standalone MySQL/MariaDB database. The example docker-compose file runs one, but it's up to you to back the database up as needed.
+4. The `/var/cache/zoneminder` volume (events, images, etc.) must be owned by `www-data:www-data` (UID/GID 33) with appropriate permissions (e.g., 775). The container does **not** recursively fix permissions on this volume at startup, as doing so can take tens of minutes on large event stores. If you use a bind mount, ensure the host directory has correct ownership before starting the container.
 
 ### Demo via docker-compose
 
