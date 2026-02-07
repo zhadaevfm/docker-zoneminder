@@ -176,6 +176,8 @@ RUN apt-get update \
         libjpeg62-turbo \
         libpcre2-8-0 \
         libmosquittopp1 \
+        libunwind8 \
+        libgsoap-2.8.135 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy compiled ZoneMinder from builder

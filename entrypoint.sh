@@ -13,13 +13,11 @@ mysql_ready() {
     mariadb-admin ping --host=$ZM_DB_HOST --user=$ZM_DB_USER --password=$ZM_DB_PASS > /dev/null 2>&1
 }
 
-# check if Directory inside of /var/cache/zoneminder are present.
-if [ ! -d /var/cache/zoneminder/events ]; then
-    echo "Creating /var/cache/zoneminder subdirectories and setting permissions"
-    mkdir -p /var/cache/zoneminder/{events,images,temp,cache}
-    chown -R root:www-data /var/cache/zoneminder
-    chmod -R 770 /var/cache/zoneminder
-fi
+# Ensure cache subdirectories exist and have correct ownership (bind mounts may have host UIDs)
+echo "Ensuring /var/cache/zoneminder subdirectories exist with correct permissions"
+mkdir -p /var/cache/zoneminder/{events,images,temp,cache}
+chown -R www-data:www-data /var/cache/zoneminder
+chmod -R 775 /var/cache/zoneminder
 
 echo "chown and chmod /etc/zm and /var/log/zm"
 chown -R root:www-data /etc/zm
@@ -73,6 +71,15 @@ else
     mariadb -u $ZM_DB_USER -p$ZM_DB_PASS -h $ZM_DB_HOST $ZM_DB_NAME < /usr/share/zoneminder/db/triggers.sql
 fi
 
+# Ensure database schema is up to date, then freshen config
+DB_VERSION=$(mariadb -u$ZM_DB_USER -p$ZM_DB_PASS --host=$ZM_DB_HOST --batch --skip-column-names -e "SELECT Value FROM ${ZM_DB_NAME}.Config WHERE Name='ZM_DYN_DB_VERSION';" 2>/dev/null || echo "")
+
+if [[ -n "$DB_VERSION" ]]; then
+    echo "Database version: $DB_VERSION. Running zmupdate.pl to ensure schema is current..."
+    su -c "zmupdate.pl --version=${DB_VERSION} -nointeractive" -s /bin/bash www-data
+fi
+
+echo "Running zmupdate.pl -f to freshen configuration..."
 su -c 'zmupdate.pl -f' -s /bin/bash www-data
 
 /usr/bin/s6-svscan /etc/services.d
