@@ -2,11 +2,12 @@
 
 set -o errexit
 
-# Build SSL option for mariadb client commands
-DB_SSL_OPT=""
+# Configure MariaDB client SSL globally so all callers (including zmupdate.pl) respect it
 if [[ "${ZM_DB_SSL}" != "yes" ]]; then
-    DB_SSL_OPT="--skip-ssl"
-    echo "ZM_DB_SSL is not 'yes'; using --skip-ssl for MariaDB client connections"
+    echo "ZM_DB_SSL is not 'yes'; configuring --skip-ssl globally for MariaDB client"
+    printf '[client]\nskip-ssl\n' > /etc/mysql/mariadb.conf.d/99-skip-ssl.cnf
+else
+    rm -f /etc/mysql/mariadb.conf.d/99-skip-ssl.cnf
 fi
 
 echo "Interpolating ZM_DB_* env vars into /etc/zm/zm.conf"
@@ -17,7 +18,7 @@ sed  -i "s|ZM_DB_PASS=.*|ZM_DB_PASS=${ZM_DB_PASS}|" /etc/zm/zm.conf
 
 # Returns true once mysql can connect.
 mysql_ready() {
-    mariadb-admin ping $DB_SSL_OPT --host=$ZM_DB_HOST --user=$ZM_DB_USER --password=$ZM_DB_PASS > /dev/null 2>&1
+    mariadb-admin ping --host=$ZM_DB_HOST --user=$ZM_DB_USER --password=$ZM_DB_PASS > /dev/null 2>&1
 }
 
 # Ensure cache subdirectories exist and have correct ownership (bind mounts may have host UIDs)
@@ -49,7 +50,7 @@ done
 
 # check if database is empty and fill it if necessary
 echo "Checking count of tables in ${ZM_DB_NAME} database"
-EMPTYDATABASE=$(mariadb $DB_SSL_OPT -u$ZM_DB_USER -p$ZM_DB_PASS --host=$ZM_DB_HOST --batch --skip-column-names -e "use ${ZM_DB_NAME} ; show tables;" | wc -l )
+EMPTYDATABASE=$(mariadb -u$ZM_DB_USER -p$ZM_DB_PASS --host=$ZM_DB_HOST --batch --skip-column-names -e "use ${ZM_DB_NAME} ; show tables;" | wc -l )
 echo "Database has ${EMPTYDATABASE} tables"
 
 if [[ $EMPTYDATABASE != 0 ]]; then
@@ -72,14 +73,14 @@ else
 
     # prep the database for zoneminder
     echo "Executing /usr/share/zoneminder/db/zm_create.sql to create database"
-    mariadb $DB_SSL_OPT -u $ZM_DB_USER -p$ZM_DB_PASS -h $ZM_DB_HOST $ZM_DB_NAME < /usr/share/zoneminder/db/zm_create.sql
+    mariadb -u $ZM_DB_USER -p$ZM_DB_PASS -h $ZM_DB_HOST $ZM_DB_NAME < /usr/share/zoneminder/db/zm_create.sql
     # create triggers
     echo "Executing /usr/share/zoneminder/db/triggers.sql to set up database triggers"
-    mariadb $DB_SSL_OPT -u $ZM_DB_USER -p$ZM_DB_PASS -h $ZM_DB_HOST $ZM_DB_NAME < /usr/share/zoneminder/db/triggers.sql
+    mariadb -u $ZM_DB_USER -p$ZM_DB_PASS -h $ZM_DB_HOST $ZM_DB_NAME < /usr/share/zoneminder/db/triggers.sql
 fi
 
 # Ensure database schema is up to date, then freshen config
-DB_VERSION=$(mariadb $DB_SSL_OPT -u$ZM_DB_USER -p$ZM_DB_PASS --host=$ZM_DB_HOST --batch --skip-column-names -e "SELECT Value FROM ${ZM_DB_NAME}.Config WHERE Name='ZM_DYN_DB_VERSION';" 2>/dev/null || echo "")
+DB_VERSION=$(mariadb -u$ZM_DB_USER -p$ZM_DB_PASS --host=$ZM_DB_HOST --batch --skip-column-names -e "SELECT Value FROM ${ZM_DB_NAME}.Config WHERE Name='ZM_DYN_DB_VERSION';" 2>/dev/null || echo "")
 
 if [[ -n "$DB_VERSION" ]]; then
     echo "Database version: $DB_VERSION. Running zmupdate.pl to ensure schema is current..."
