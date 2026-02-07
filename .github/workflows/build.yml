@@ -21,6 +21,7 @@ jobs:
       - name: Docker Build and Push
         uses: docker/build-push-action@v6
         with:
+          context: .
           push: true
           sbom: true
           labels: |
