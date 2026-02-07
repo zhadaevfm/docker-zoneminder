@@ -46,6 +46,8 @@ In addition, the output of `mod_status` is exposed at `/server-status`.
 
 ZoneMinder 1.38.0 is a major upgrade from 1.36.x with significant changes including a redesigned monitor function model, role-based access control (RBAC), 79 database schema migrations, and go2rtc-based live streaming replacing Janus/RTSP2Web. The entrypoint handles the database schema migration automatically, but there are several things to be aware of.
 
+A detailed analysis of the changes from 1.36.33 to 1.38.0 can be seen in [docs/upgrade_1.36.33_to_1.38.0.md](docs/upgrade_1.36.33_to_1.38.0.md).
+
 ### Before You Upgrade
 
 1. **Back up your database.** The upgrade involves 79 schema migrations. While `zmupdate.pl` handles this, a backup is essential in case something goes wrong.
