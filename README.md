@@ -30,6 +30,17 @@ In addition, the output of `mod_status` is exposed at `/server-status`.
 4. In whichever docker-compose file you use (or both), change `ghcr.io/jantman/docker-zoneminder:latest` to the newest [versioned tag](https://github.com/jantman/docker-zoneminder/pkgs/container/docker-zoneminder) of the image.
 5. From that same directory, `docker-compose up` should start the database and then zoneminder. If you also want the MLAPI object detection, you can use `docker-compose -f docker-compose-mlapi.yml up`
 
+### Environment Variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `ZM_DB_HOST` | `mariadb` | Database hostname |
+| `ZM_DB_NAME` | `zm` | Database name |
+| `ZM_DB_USER` | `zmuser` | Database user |
+| `ZM_DB_PASS` | `zmpass` | Database password |
+| `ZM_DB_SSL` | `no` | Set to `yes` to use SSL for MariaDB connections; `no` adds `--skip-ssl` to client commands |
+| `TZ` | `America/New_York` | Timezone (also sets PHP timezone) |
+
 ## Upgrading from 1.36.x to 1.38.0
 
 ZoneMinder 1.38.0 is a major upgrade from 1.36.x with significant changes including a redesigned monitor function model, role-based access control (RBAC), 79 database schema migrations, and go2rtc-based live streaming replacing Janus/RTSP2Web. The entrypoint handles the database schema migration automatically, but there are several things to be aware of.

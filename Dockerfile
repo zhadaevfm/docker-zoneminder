@@ -86,6 +86,7 @@ ENV ZM_DB_HOST=mariadb
 ENV ZM_DB_NAME=zm
 ENV ZM_DB_USER=zmuser
 ENV ZM_DB_PASS=zmpass
+ENV ZM_DB_SSL=no
 # this is just a default
 ENV TZ=America/New_York
 

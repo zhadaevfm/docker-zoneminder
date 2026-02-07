@@ -55,6 +55,7 @@ There is no automated test suite. Verification is manual: build the image and ru
 | `ZM_DB_NAME` | `zm` | Database name |
 | `ZM_DB_USER` | `zmuser` | Database user |
 | `ZM_DB_PASS` | `zmpass` | Database password |
+| `ZM_DB_SSL` | `no` | Set to `yes` to use SSL for MariaDB connections; `no` adds `--skip-ssl` |
 | `TZ` | `America/New_York` | Timezone (also sets PHP timezone) |
 
 ### File Layout
