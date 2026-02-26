@@ -1,0 +1,8 @@
+#!/bin/bash
+# ==============================================================================
+# go2rtc
+# Runs go2rtc streaming server for WebRTC/MSE/HLS live streaming
+# ==============================================================================
+
+echo "Starting go2rtc..."
+exec /usr/local/bin/go2rtc -c /etc/zm/go2rtc.yaml

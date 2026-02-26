@@ -1,5 +1,3 @@
-version: '2'
-
 volumes:
   zmcache:
     driver: local
@@ -28,7 +26,7 @@ volumes:
 
 services:
   mariadb:
-    image: mariadb:11.1-jammy
+    image: mariadb:11.8
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=America/New_York
     volumes:
@@ -40,12 +38,15 @@ services:
       - MARIADB_ROOT_PASSWORD=w8t67u23789t
       - TZ=America/New_York
   zm:
-    image: jantman/docker-zoneminder:devel
+    image: ghcr.io/jantman/docker-zoneminder:latest
     restart: always
     shm_size: 1G
     ports:
       - 8080:80
-    links:
+      - 9000:9000
+      - 1984:1984
+      - 8555:8555
+    depends_on:
       - mariadb
     tmpfs:
       - /run

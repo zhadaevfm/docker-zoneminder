@@ -3,3 +3,7 @@ cache/
 zm-log/
 apache2-log/
 db/
+secrets.ini
+zmeventnotification.ini
+objectconfig.ini
+es_rules.json

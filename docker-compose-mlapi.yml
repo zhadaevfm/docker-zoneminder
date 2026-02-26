@@ -1,12 +1,10 @@
-version: '2'
-
 volumes:
   data:
   db:
 
 services:
   mariadb:
-    image: mariadb:11.1-jammy
+    image: mariadb:11.8
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=America/New_York
     volumes:
@@ -17,7 +15,7 @@ services:
       - MYSQL_USER=zmuser
       - MARIADB_ROOT_PASSWORD=w8t67u23789t
   mlapi:
-    image: jantman/docker-zm-mlapi:devel
+    image: ghcr.io/jantman/docker-zm-mlapi:latest
     restart: always
     ports:
       - 8088:80
@@ -32,11 +30,14 @@ services:
       - ./mlapiconfig.ini:/etc/mlapiconfig.ini
       - ./secrets.ini:/etc/secrets.ini
   zm:
-    image: jantman/docker-zoneminder:devel
+    image: ghcr.io/jantman/docker-zoneminder:latest
     restart: always
     shm_size: 1G
     ports:
       - 8080:80
+      - 9000:9000
+      - 1984:1984
+      - 8555:8555
     depends_on:
       - mariadb
     tmpfs:
