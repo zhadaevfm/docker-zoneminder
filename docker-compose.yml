@@ -1,64 +1,50 @@
-volumes:
-  zmcache:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /zoneminder/zmcache
-  zmlog:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /zoneminder/zmlog
-  zmapachelog:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /zoneminder/zmapachelog
-  db:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /zoneminder/db
-
 services:
   mariadb:
     image: mariadb:11.8
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --default-time-zone=Europe/Saratov
     volumes:
-      - db:/var/lib/mysql:Z
+      - /mnt/zm_data/ZM_DATA/db:/var/lib/mysql
     environment:
-      - MYSQL_PASSWORD=zmpass
-      - MYSQL_DATABASE=zm
-      - MYSQL_USER=zmuser
       - MARIADB_ROOT_PASSWORD=w8t67u23789t
+      - MARIADB_USER=zmuser
+      - MARIADB_PASSWORD=zmpass
+      - MARIADB_DATABASE=zm
       - TZ=Europe/Saratov
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   zm:
-    image: ghcr.io/jantman/docker-zoneminder:latest
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: zhadaevfm/docker-zoneminder-new:v1.38.1
     restart: always
-    shm_size: 1G
+    shm_size: 8G
     ports:
-      - 8080:80
-      - 9000:9000
-      - 1984:1984
-      - 8555:8555
+      - 8081:80
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     tmpfs:
       - /run
       - /tmp
     volumes:
-      - zmcache:/var/cache/zoneminder:Z
-      - zmlog:/var/log/zm:Z
-      - zmapachelog:/var/log/apache2:Z
-      - ./data/es_rules.json:/etc/zm/es_rules.json:Z
-      - ./data/secrets.ini:/etc/zm/secrets.ini:Z
-      - ./data/zmeventnotification.ini:/etc/zm/zmeventnotification.ini:Z
-      - ./data/objectconfig.ini:/etc/zm/objectconfig.ini:Z
+      - /mnt/zm_data/ZM_DATA/zmcache:/var/cache/zoneminder
+      - /mnt/zm_data/ZM_DATA/zmlog:/var/log/zm
+      - /mnt/zm_data/ZM_DATA/zmapachelog:/var/log/apache2
+      - ./data/es_rules.json:/etc/zm/es_rules.json
+      - ./data/secrets.ini:/etc/zm/secrets.ini
+      - ./data/zmeventnotification.ini:/etc/zm/zmeventnotification.ini
+      - ./data/objectconfig.ini:/etc/zm/objectconfig.ini
     environment:
+      - ZM_DB_HOST=mariadb
+      - ZM_DB_PASS=zmpass
+      - ZM_DB_NAME=zm
+      - ZM_DB_USER=zmuser
       - TZ=Europe/Saratov
 
