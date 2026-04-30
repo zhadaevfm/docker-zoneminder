@@ -6,7 +6,7 @@ Modern, best-practices Debian-based Zoneminder container
 
 **IMPORTANT:** This is a personal project only. PRs are accepted, but this is not supported and "issues" will likely not be fixed or responded to. This is only for people who understand the details of everything invovled, sorry.
 
-This repo attempts to provide a modern, best-practices Docker image for current ZoneMinder versions, using a current Debian version base. The image provides ZoneMinder 1.38.0 (compiled from source) on Debian 13 (Trixie) with Apache + PHP 8.4, and includes [go2rtc](https://github.com/AlexxIT/go2rtc) for WebRTC/MSE/HLS live streaming. It requires an external MySQL/MariaDB server (the example docker-compose files use MariaDB 11.8 LTS). The image is vehemently NOT auto-updating, as doing so in a Docker image is a mortal sin. If you want to update, then pull a newer tag.
+This repo attempts to provide a modern, best-practices Docker image for current ZoneMinder versions, using a current Debian version base. The image provides ZoneMinder 1.38.1 (compiled from source) on Debian 13 (Trixie) with Apache + PHP 8.4, and includes [go2rtc](https://github.com/AlexxIT/go2rtc) for WebRTC/MSE/HLS live streaming. It requires an external MySQL/MariaDB server (the example docker-compose files use MariaDB 11.8 LTS). The image is vehemently NOT auto-updating, as doing so in a Docker image is a mortal sin. If you want to update, then pull a newer tag.
 
 **NOTE:** If you want to use the event server, then you'll need to mount the appropriate configuration files in to the image at ``/etc/zm/es_rules.json``, ``/etc/zm/zmeventnotification.ini``, and ``/etc/zm/secrets.ini``; examples are included in this repo.
 
@@ -69,6 +69,8 @@ A detailed analysis of the changes from 1.36.33 to 1.38.0 can be seen in [docs/u
 - **Monitor Function changes:** ZM 1.38 splits the old single `Function` field into three separate fields: `Capturing`, `Analysing`, and `Recording`. Your existing monitors will be migrated automatically, but review them to ensure the new settings are correct.
 - **Live streaming:** Janus and RTSP2Web are no longer the recommended live stream methods. Use go2rtc instead (see below).
 - **ZMES compatibility:** The ZM Event Notification Server (v6.1.29) predates ZM 1.38 and may have issues with the new monitor function model. Test your event hooks carefully.
+- **Font file location:** ZM 1.38 moved the default font from `/usr/share/zoneminder/www/fonts/default.zmfnt` to `/usr/share/zoneminder/fonts/default.zmfnt`. If your logs are spammed with `Invalid font location` errors, go to **Options → Config → FONT_FILE_LOCATION** and update it to `/usr/share/zoneminder/fonts/default.zmfnt`.
+- **Zone Units:** ZM 1.38 may log warnings like `Zone X has Units=Percent but Coords contain pixel values`. This happens when zones created in older versions have `Units` set to `Percent` but their coordinates are actually pixel values. Fix with: `UPDATE Zones SET Units = 'Pixels' WHERE Units = 'Percent' AND Coords REGEXP '[0-9]{3,}';` then restart ZoneMinder.
 
 ### Known Issues
 
@@ -103,7 +105,7 @@ The image includes [go2rtc](https://github.com/AlexxIT/go2rtc) v1.9.14 for moder
 
 ## Development
 
-1. Cut a branch and make some changes. Ideally build the Docker image locally to ensure it builds. Cut a PR. That will trigger a build, and will push the resulting image to Docker Hub with a tag of the commit SHA.
+1. Cut a branch and make some changes. Ideally build the Docker image locally to ensure it builds. Cut a PR. That will trigger a build, and will push the resulting image to GHCR as an untagged package.
 2. Test that image.
 3. When the image is verified to work, merge the PR to `main`.
-4. Add a new release version tag for main and push it; that will trigger a full release build and release the new version.
+4. Add a new release version tag for main and push it; that will trigger a full release build, push versioned and `latest` tags to GHCR, and create a GitHub Release with image info and changelog.
